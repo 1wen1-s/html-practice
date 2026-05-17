@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>敦煌 - 丝路明珠</title>
+    <style>
+        /* ==================== 基础设置 ==================== */
+      
+.hero-title {
+    font-family: 'ChineseCalligraphy', 'DunhuangTitle', 'XingKai', serif;
+}
+        @font-face {
+            font-family: 'DunhuangFont';
+            src: local('KaiTi'), local('STKAITI'), url('fonts/STKAITI.TTF') format('truetype');
+        }
+
+        @font-face {
+            font-family: 'DunhuangTitle';
+            src: local('XingKai'), local('STXINGKA'), url('fonts/STXINGKA.TTF') format('truetype');
+        }
+
+        :root {
+            --color-sand: #D4A574;
+            --color-ochre: #B85C38;
+            --color-cyan: #4A7C7C;
+            --color-red: #8B3A3A;
+            --color-gold: #C9A961;
+            --color-dark: #1a1a1a;
+            --color-light: #f5f5f5;
+            --color-white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DunhuangFont', 'Microsoft YaHei', sans-serif;
+            background-color: var(--color-dark);
+            color: var(--color-light);
+            line-height: 1.6;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.3s ease;
+        }
+
+        /* ==================== 全屏轮播背景 ==================== */
+        .carousel-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.65);
+        }
+
+        /* 渐变遮罩 */
+        .overlay-gradient {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                180deg,
+                rgba(26, 26, 26, 0.85) 0%,
+                rgba(184, 92, 56, 0.3) 50%,
+                rgba(26, 26, 26, 0.95) 100%
+            );
+        }
+
+        /* ==================== 导航栏 - 数字敦煌风格 ==================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(180deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 100%);
+            backdrop-filter: blur(5px);
+            border-bottom: 1px solid rgba(201, 169, 97, 0.2);
+        }
+
+        .navbar.scrolled {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(201, 169, 97, 0.4);
+        }
+
+        /* Logo 区域 */
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .brand-logo {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--color-gold) 0%, var(--color-ochre) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'DunhuangTitle', 'XingKai', '行楷', serif;
+            font-size: 1.5rem;
+            color: var(--color-dark);
+            box-shadow: 0 2px 10px rgba(201, 169, 97, 0.4);
+        }
+
+        .brand-text {
+            font-family: 'DunhuangTitle', 'XingKai', '行楷', serif;
+            font-size: 1.6rem;
+            color: var(--color-gold);
+            letter-spacing: 0.3rem;
+            text-shadow: 0 2px 8px rgba(201, 169, 97, 0.3);
+        }
+
+        .brand-text span {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.15rem;
+            margin-left: 0.5rem;
+        }
+
+        /* 导航链接 */
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95rem;
+            letter-spacing: 0.1rem;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--color-gold);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: var(--color-gold);
+        }
+
+        /* ==================== 主内容区域 ==================== */
+        .hero-section {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            background: linear-gradient(90deg, rgba(184, 92, 56, 0.3), rgba(201, 169, 97, 0.3));
+            border: 1px solid var(--color-gold);
+            border-radius: 50px;
+            color: var(--color-gold);
+            font-size: 0.85rem;
+            letter-spacing: 0.3rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-title {
+            font-family: 'DunhuangTitle', 'XingKai', '行楷', serif;
+            font-size: 6rem;
+            color: var(--color-white);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+            letter-spacing: 1rem;
+        }
+
+        .hero-title span {
+            color: var(--color-gold);
+            display: block;
+            font-size: 7rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin-bottom: 3rem;
+            line-height: 2;
+            font-weight: 300;
+            letter-spacing: 0.2rem;
+        }
+
+        /* ==================== 轮播指示器 ==================== */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1.2rem;
+            z-index: 10;
+        }
+
+        .indicator {
+            width: 60px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.25);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .indicator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--color-gold), var(--color-ochre));
+            transition: width 0.3s ease;
+        }
+
+        .indicator.active::before {
+            width: 100%;
+        }
+
+        .indicator.active {
+            background: rgba(201, 169, 97, 0.4);
+        }
+
+        /* ==================== 滚动提示 ==================== */
+        .scroll-hint {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.8rem;
+            letter-spacing: 0.2rem;
+            animation: bounce 2s infinite;
+            cursor: pointer;
+        }
+
+        .scroll-hint:hover {
+            color: var(--color-gold);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-12px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-6px);
+            }
+        }
+
+        .scroll-arrow {
+            width: 24px;
+            height: 36px;
+            border: 2px solid rgba(201, 169, 97, 0.6);
+            border-radius: 18px;
+            position: relative;
+        }
+
+        .scroll-arrow::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 5px;
+            height: 10px;
+            background: var(--color-gold);
+            border-radius: 2px;
+            animation: scrollDown 1.5s infinite;
+        }
+
+        @keyframes scrollDown {
+            0% {
+                opacity: 1;
+                top: 8px;
+            }
+            100% {
+                opacity: 0;
+                top: 22px;
+            }
+        }
+
+        /* ==================== 装饰元素 ==================== */
+        .decoration-pattern {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border: 1px solid rgba(201, 169, 97, 0.2);
+            border-radius: 50%;
+        }
+
+        .decoration-pattern.top-left {
+            top: 10%;
+            left: 5%;
+            animation: rotate 30s linear infinite;
+        }
+
+        .decoration-pattern.bottom-right {
+            bottom: 10%;
+            right: 5%;
+            animation: rotate 30s linear infinite reverse;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== 响应式设计 ==================== */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem 1.5rem;
+            }
+
+            .brand-text {
+                font-size: 1.3rem;
+                letter-spacing: 0.2rem;
+            }
+
+            .brand-logo {
+                width: 38px;
+                height: 38px;
+                font-size: 1.2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero-title {
+                font-size: 3.5rem;
+                letter-spacing: 0.5rem;
+            }
+
+            .hero-title span {
+                font-size: 4rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1rem;
+                letter-spacing: 0.1rem;
+            }
+
+            .carousel-indicators {
+                bottom: 6rem;
+            }
+
+            .indicator {
+                width: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 全屏轮播背景 -->
+    <div class="carousel-bg" id="carouselBg">
+        <div class="overlay-gradient"></div>
+        <div class="carousel-slide active">
+            <img src="images/110.png" alt="壁画艺术">
+        </div>
+        <div class="carousel-slide">
+            <img src="images/114.jpg" alt="莫高窟">
+        </div>
+        <div class="carousel-slide">
+            <img src="images/113.jpg" alt="壁画细节">
+        </div>
+        <div class="carousel-slide">
+            <img src="images/117.png" alt="洞窟">
+        </div>
+    </div>
+
+    <!-- 导航栏 - 数字敦煌风格 -->
+    <nav class="navbar" id="navbar">
+        <!-- Logo 区域 -->
+        <div class="navbar-brand">
+            <div class="brand-logo">敦</div>
+            <span class="brand-text">敦煌<span>DUNHUANG</span></span>
+        </div>
+        
+        <!-- 导航链接 -->
+        <div class="nav-links">
+            <a href="home.html">首页</a>
+            <a href="#">探索</a>
+            <a href="article.html">洞窟</a>
+            <a href="#">壁画</a>
+            <a href="#">关于</a>
+        </div>
+    </nav>
+
+    <!-- 主内容区域 -->
+    <section class="hero-section">
+        <!-- 装饰图案 -->
+        <div class="decoration-pattern top-left"></div>
+        <div class="decoration-pattern bottom-right"></div>
+
+        <div class="hero-content">
+            <span class="hero-badge">世界文化遗产 · 千年艺术宝库</span>
+            <h1 class="hero-title">千年<span>敦煌</span></h1>
+            <p class="hero-subtitle">
+                丝路明珠 · 莫高窟艺术 · 佛教文化 · 历史传承
+            </p>
+        </div>
+
+        <!-- 轮播指示器 -->
+        <div class="carousel-indicators" id="indicators">
+            <div class="indicator active" data-index="0"></div>
+            <div class="indicator" data-index="1"></div>
+            <div class="indicator" data-index="2"></div>
+            <div class="indicator" data-index="3"></div>
+        </div>
+
+        <!-- 滚动提示 - 点击跳转到首页 -->
+        <div class="scroll-hint" id="scrollHint" onclick="goToHome()">
+            <div class="scroll-arrow"></div>
+            <span>下滑进入</span>
+        </div>
+    </section>
+
+    <!-- 脚本 -->
+    <script>
+        // 轮播图功能
+        const slides = document.querySelectorAll('.carousel-slide');
+        const indicators = document.querySelectorAll('.indicator');
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+        let autoPlayInterval;
+
+        function updateCarousel() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentIndex);
+            });
+            indicators.forEach((indicator, index) => {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % totalSlides;
+            updateCarousel();
+        }
+
+        function goToSlide(index) {
+            currentIndex = index;
+            updateCarousel();
+        }
+
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                goToSlide(index);
+                resetAutoPlay();
+            });
+        });
+
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, 5000);
+        }
+
+        function resetAutoPlay() {
+            clearInterval(autoPlayInterval);
+            startAutoPlay();
+        }
+
+        startAutoPlay();
+
+        // 下滑跳转到首页
+        function goToHome() {
+            window.location.href = 'home.html';
+        }
+
+        // 键盘方向键控制
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+                goToHome();
+            }
+        });
+
+        // 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+    </script>
+</body>
+</html>
